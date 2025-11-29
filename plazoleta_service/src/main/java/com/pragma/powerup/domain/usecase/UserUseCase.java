@@ -11,6 +11,8 @@ public class UserUseCase implements IUserService {
 
     private final IUserPersistencePort persistence;
     private final IPasswordEncoderPort passwordEncoder;
+    private static final Long ROLE_OWNER = 2L;
+
 
     public UserUseCase(IUserPersistencePort persistence, IPasswordEncoderPort passwordEncoder) {
         this.persistence = persistence;
@@ -28,7 +30,7 @@ public class UserUseCase implements IUserService {
         if (!user.getPhoneNumber().matches("^\\+?\\d{10,13}$"))
             throw new IllegalArgumentException("Teléfono inválido");
 
-        if (!user.getDocumentId().matches("^[0-9]+$"))
+        if (!user.getDocumentId().matches("^\\d+$"))
             throw new IllegalArgumentException("Documento inválido");
 
         if (user.getBirthDate().isAfter(LocalDate.now().minusYears(18))) {
@@ -36,7 +38,7 @@ public class UserUseCase implements IUserService {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoleId(2L);
+        user.setRoleId(ROLE_OWNER);
 
         persistence.save(user);
     }
