@@ -1,12 +1,18 @@
 package com.pragma.powerup.infrastructure.configuration;
 
+import com.pragma.powerup.domain.api.IRestaurantService;
 import com.pragma.powerup.domain.api.IUserService;
 import com.pragma.powerup.domain.spi.IPasswordEncoderPort;
+import com.pragma.powerup.domain.spi.IRestaurantPersistencePort;
 import com.pragma.powerup.domain.spi.IUserPersistencePort;
+import com.pragma.powerup.domain.usecase.RestaurantUseCase;
 import com.pragma.powerup.domain.usecase.UserUseCase;
 import com.pragma.powerup.infrastructure.out.jpa.adapter.PasswordEncoderAdapter;
+import com.pragma.powerup.infrastructure.out.jpa.adapter.RestaurantJpaAdapter;
 import com.pragma.powerup.infrastructure.out.jpa.adapter.UserJpaAdapter;
+import com.pragma.powerup.infrastructure.out.jpa.mapper.RestaurantEntityMapper;
 import com.pragma.powerup.infrastructure.out.jpa.mapper.UserEntityMapper;
+import com.pragma.powerup.infrastructure.out.jpa.repository.RestaurantRepository;
 import com.pragma.powerup.infrastructure.out.jpa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,4 +37,17 @@ public class BeanConfiguration {
                                         IPasswordEncoderPort passwordEncoderPort) {
         return new UserUseCase(userPersistencePort, passwordEncoderPort);
     }
+
+    @Bean
+    public IRestaurantPersistencePort restaurantPersistencePort(RestaurantRepository repository,
+                                                                RestaurantEntityMapper mapper) {
+        return new RestaurantJpaAdapter(repository, mapper);
+    }
+
+    @Bean
+    public IRestaurantService restaurantServicePort(IRestaurantPersistencePort restaurantPersistencePort,
+                                                    IUserPersistencePort userPersistencePort) {
+        return new RestaurantUseCase(restaurantPersistencePort, userPersistencePort);
+    }
+
 }
