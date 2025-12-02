@@ -2,6 +2,7 @@ package com.pragma.powerup.domain.usecase;
 
 import com.pragma.powerup.domain.api.IDishService;
 import com.pragma.powerup.domain.model.Dish;
+import com.pragma.powerup.domain.model.Restaurant;
 import com.pragma.powerup.domain.spi.IDishPersistencePort;
 import com.pragma.powerup.domain.spi.IRestaurantPersistencePort;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ public class DishUseCase implements IDishService {
     @Override
     public void createDish(Long ownerId, Dish dish){
 
-        if (dish.getName() == null){
+        if (dish.getName() == null || dish.getName().isBlank()   ){
             throw new IllegalArgumentException("Dish name is required");
         }
 
@@ -39,10 +40,11 @@ public class DishUseCase implements IDishService {
         if (dish.getRestaurantId() == null) {
             throw new IllegalArgumentException("Restaurant ID is required");
         }
-        if (iRestaurantPersistencePort.findById(dish.getRestaurantId()) == null){
+        var restaurant = iRestaurantPersistencePort.findById(dish.getRestaurantId());
+        if (restaurant == null){
             throw new IllegalArgumentException("The restaurant associated with the dish does not exist");
         }
-        if (!(iRestaurantPersistencePort.findById(dish.getRestaurantId())).getOwnerId().equals(ownerId)){
+        if (!restaurant.getOwnerId().equals(ownerId)){
             throw new IllegalArgumentException("The owner is not authorized to create dishes in this restaurant");
         }
 

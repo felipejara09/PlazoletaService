@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Data
 public class DishRequestDto {
-    @NotBlank
+    @NotBlank(message = "Dish name is required")
     private String name;
 
     @NotNull
