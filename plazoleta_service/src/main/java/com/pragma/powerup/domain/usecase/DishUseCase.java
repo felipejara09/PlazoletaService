@@ -1,8 +1,9 @@
 package com.pragma.powerup.domain.usecase;
 
 import com.pragma.powerup.domain.api.IDishService;
+import com.pragma.powerup.domain.exception.DomainException;
 import com.pragma.powerup.domain.model.Dish;
-import com.pragma.powerup.domain.model.Restaurant;
+
 import com.pragma.powerup.domain.spi.IDishPersistencePort;
 import com.pragma.powerup.domain.spi.IRestaurantPersistencePort;
 import lombok.AllArgsConstructor;
@@ -52,8 +53,49 @@ public class DishUseCase implements IDishService {
 
         iDishPersistencePort.save(dish);
 
-
-
     }
+
+    @Override
+
+    public void updateDish(Long ownerId, Dish dish) {
+
+        if (dish.getId() == null) {
+            throw new DomainException("Dish ID is required");
+        }
+
+        Dish existingDish = iDishPersistencePort.findById(dish.getId());
+        if (existingDish == null) {
+            throw new DomainException("Dish not found");
+        }
+
+        var restaurant = iRestaurantPersistencePort.findById(existingDish.getRestaurantId());
+        if (restaurant == null) {
+            throw new DomainException("Restaurant not found");
+        }
+
+        if (!restaurant.getOwnerId().equals(ownerId)) {
+            throw new DomainException("The owner is not authorized to update dishes in this restaurant");
+        }
+
+
+        if (dish.getPrice() != null) {
+            if (dish.getPrice() <= 0) {
+                throw new DomainException("Price must be positive");
+            }
+            existingDish.setPrice(dish.getPrice());
+        }
+
+        if (dish.getDescription() != null && !dish.getDescription().isBlank()) {
+            existingDish.setDescription(dish.getDescription());
+        }
+
+        iDishPersistencePort.save(existingDish);
+    }
+
+    @Override
+    public Dish findById(Long dishId) {
+        return iDishPersistencePort.findById(dishId);
+    }
+
 
 }

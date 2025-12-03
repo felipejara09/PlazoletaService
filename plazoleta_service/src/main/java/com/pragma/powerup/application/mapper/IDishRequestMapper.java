@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 public interface IDishRequestMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "active", ignore = true) // se setea en el use case
+    @Mapping(target = "active", ignore = true)
     Dish toDish(DishRequestDto dto);
+
+
 }

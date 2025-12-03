@@ -206,4 +206,34 @@ class DishUseCaseTest {
         verify(restaurantPersistencePort).findById(restaurantId);
         verifyNoInteractions(dishPersistencePort);
     }
+
+    @Test
+    void updateDish_ShouldUpdatePriceAndDescription_WhenOwnerIsAuthorized() {
+        Long ownerId = 10L;
+
+        Dish existing = new Dish( );
+        existing.setId(5L);
+        existing.setRestaurantId(2L);
+        existing.setPrice(20000);
+        existing.setDescription("old");
+
+        Dish update = new Dish();
+        update.setId(5L);
+        update.setPrice(25000);
+        update.setDescription("new");
+
+        Restaurant restaurant = new Restaurant();
+        restaurant.setId(2L);
+        restaurant.setOwnerId(ownerId);
+
+        when(dishPersistencePort.findById(5L)).thenReturn(existing);
+        when(restaurantPersistencePort.findById(2L)).thenReturn(restaurant);
+
+        dishUseCase.updateDish(ownerId, update);
+
+        assertEquals(25000, existing.getPrice());
+        assertEquals("new", existing.getDescription());
+
+        verify(dishPersistencePort).save(existing);
+    }
 }

@@ -1,9 +1,11 @@
 package com.pragma.powerup.application.handler.impl;
 
 import com.pragma.powerup.application.dto.request.DishRequestDto;
+import com.pragma.powerup.application.dto.request.DishUpdateRequestDto;
 import com.pragma.powerup.application.dto.response.DishResponseDto;
 import com.pragma.powerup.application.handler.IDishHandler;
 import com.pragma.powerup.application.mapper.IDishRequestMapper;
+import com.pragma.powerup.application.mapper.IDishResponseMapper;
 import com.pragma.powerup.domain.api.IDishService;
 import com.pragma.powerup.domain.model.Dish;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,9 @@ public class DishHandler  implements IDishHandler {
 
     private final IDishService dishServicePort;
     private final IDishRequestMapper dishRequestMapper;
+    private final IDishResponseMapper dishResponseMapper;
+
+
 
     @Override
     public DishResponseDto createDish(DishRequestDto dto) {
@@ -30,6 +35,21 @@ public class DishHandler  implements IDishHandler {
                 dish.getPrice(),
                 dish.getActive()
         );
+    }
+
+    @Override
+    public DishResponseDto updateDish(DishUpdateRequestDto dto) {
+
+        Dish dish = new Dish();
+        dish.setId(dto.getDishId());
+        dish.setPrice(dto.getPrice());
+        dish.setDescription(dto.getDescription());
+
+        dishServicePort.updateDish(dto.getOwnerId(), dish);
+
+        Dish updated = dishServicePort.findById(dto.getDishId());
+
+        return dishResponseMapper.toDishResponseDto(updated);
     }
 
 }
